@@ -60,6 +60,9 @@ for i in range(n_gpus):
     progress(f"  GPU {i}: {prop.name} ({prop.total_memory/1e9:.1f} GB)")
 
 DEVICE = 'cuda:0' if n_gpus > 0 else 'cpu'
+progress(f"Using device: {DEVICE}")
+if n_gpus > 0:
+    progress("WARNING: MPS on Mac is buggy with RealMLP. Use this script on NVIDIA GPU server only.")
 
 # ============================================================
 # 1. RealMLP (最强单模)
