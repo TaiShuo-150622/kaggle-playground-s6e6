@@ -1,0 +1,11 @@
+data/train.csv
+data/test.csv
+data/train_fe.csv
+data/test_fe.csv
+data/sample_submission.csv
+*.zip
+__pycache__/
+.ipynb_checkpoints/
+.cache/
+*.pyc
+submission_*.csv
