@@ -52,19 +52,19 @@ LGB_MODELS = [
 
 # ---- XGBoost ×5 (不同深度 + 正则 + 种子) ----
 XGB_MODELS = [
-    ("XGB_d6", dict(max_depth=6,  min_child_weight=50)),
-    ("XGB_d8", dict(max_depth=8,  min_child_weight=50)),
-    ("XGB_d10",dict(max_depth=10, min_child_weight=50)),
-    ("XGB_d8_reg", dict(max_depth=8, min_child_weight=100, reg_alpha=0.5, reg_lambda=1.0)),
-    ("XGB_d6_gamma", dict(max_depth=6, min_child_weight=30, gamma=0.1)),
+    ("XGB_d6", dict(max_depth=6,  min_child_weight=50, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=0.1)),
+    ("XGB_d8", dict(max_depth=8,  min_child_weight=50, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=0.1)),
+    ("XGB_d10",dict(max_depth=10, min_child_weight=50, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=0.1)),
+    ("XGB_d8_reg", dict(max_depth=8, min_child_weight=100, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.5, reg_lambda=1.0)),
+    ("XGB_d6_gamma", dict(max_depth=6, min_child_weight=30, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=0.1, gamma=0.1)),
 ]
 
 # ---- CatBoost ×4 (不同深度 + 正则 + 种子) ----
 CB_MODELS = [
-    ("CB_d6",  dict(depth=6,  min_data_in_leaf=50)),
-    ("CB_d8",  dict(depth=8,  min_data_in_leaf=50)),
-    ("CB_d10", dict(depth=10, min_data_in_leaf=50)),
-    ("CB_d8_reg", dict(depth=8, min_data_in_leaf=50, l2_leaf_reg=5)),
+    ("CB_d6",  dict(depth=6,  min_data_in_leaf=50, l2_leaf_reg=3, subsample=0.8)),
+    ("CB_d8",  dict(depth=8,  min_data_in_leaf=50, l2_leaf_reg=3, subsample=0.8)),
+    ("CB_d10", dict(depth=10, min_data_in_leaf=50, l2_leaf_reg=3, subsample=0.8)),
+    ("CB_d8_reg", dict(depth=8, min_data_in_leaf=50, l2_leaf_reg=5, subsample=0.8)),
 ]
 
 # ---- RealMLP ×4 ----
@@ -109,8 +109,7 @@ for name, params in XGB_MODELS:
     for fold, (tr, val) in enumerate(folds):
         m = xgb.XGBClassifier(
             objective='multi:softprob', num_class=3, n_estimators=2000,
-            learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
-            reg_alpha=0.1, reg_lambda=0.1, random_state=fold*42,
+            learning_rate=0.05, n_estimators=2000, random_state=fold*42,
             n_jobs=-1, verbosity=0, **params)
         m.fit(X[tr], y[tr], eval_set=[(X[val], y[val])], verbose=False)
         oof[val] = m.predict_proba(X[val]); tp += m.predict_proba(X_test)/5
@@ -128,8 +127,8 @@ for name, params in CB_MODELS:
     for fold, (tr, val) in enumerate(folds):
         m = CatBoostClassifier(
             iterations=2000, learning_rate=0.05, bootstrap_type='Bernoulli',
-            subsample=0.8, l2_leaf_reg=3, random_seed=fold*42,
-            thread_count=-1, verbose=0, allow_writing_files=False, **params)
+            random_seed=fold*42, thread_count=-1, verbose=0,
+            allow_writing_files=False, **params)
         m.fit(X_cb[tr], y[tr], eval_set=[(X_cb[val], y[val])],
               cat_features=cat_idx, early_stopping_rounds=50, verbose=0)
         oof[val] = m.predict_proba(X_cb[val]); tp += m.predict_proba(X_cb_test)/5
