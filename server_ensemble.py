@@ -108,7 +108,7 @@ for name, params in XGB_MODELS:
     scores = []
     for fold, (tr, val) in enumerate(folds):
         m = xgb.XGBClassifier(
-            objective='multi:softprob', num_class=3, n_estimators=2000,
+            objective='multi:softprob', num_class=3,
             learning_rate=0.05, n_estimators=2000, random_state=fold*42,
             n_jobs=-1, verbosity=0, **params)
         m.fit(X[tr], y[tr], eval_set=[(X[val], y[val])], verbose=False)
