@@ -80,7 +80,6 @@ MLP_MODELS = [
 # ============================================================
 all_preds = {}  # name -> {"oof": (N,3), "test": (N_test,3)}
 
-# 固定 fold splits（LightGBM 和 XGBoost 共用 X）
 folds = list(skf.split(X, y))
 
 # ---- LightGBM ----
