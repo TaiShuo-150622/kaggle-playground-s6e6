@@ -43,11 +43,11 @@ cat_idx = [i for i, col in enumerate(feat_cb) if col in feat_cat]
 
 # ---- LightGBM ×5 (不同 leaf 大小 + 深度 + 种子) ----
 LGB_MODELS = [
-    ("LGB_leaf64_d6",   dict(num_leaves=64,  max_depth=6,  min_child_samples=50)),
-    ("LGB_leaf128_d8",  dict(num_leaves=128, max_depth=8,  min_child_samples=50)),
-    ("LGB_leaf256_d10", dict(num_leaves=256, max_depth=10, min_child_samples=50)),
+    ("LGB_leaf64_d6",   dict(num_leaves=64,  max_depth=6,  min_child_samples=50, colsample_bytree=0.8)),
+    ("LGB_leaf128_d8",  dict(num_leaves=128, max_depth=8,  min_child_samples=50, colsample_bytree=0.8)),
+    ("LGB_leaf256_d10", dict(num_leaves=256, max_depth=10, min_child_samples=50, colsample_bytree=0.8)),
     ("LGB_leaf128_d8_cs9", dict(num_leaves=128, max_depth=8, min_child_samples=50, colsample_bytree=0.9)),
-    ("LGB_leaf64_d8_ss7",  dict(num_leaves=64,  max_depth=8, min_child_samples=30, subsample=0.7)),
+    ("LGB_leaf64_d8_ss7",  dict(num_leaves=64,  max_depth=8, min_child_samples=30, subsample=0.7, colsample_bytree=0.8)),
 ]
 
 # ---- XGBoost ×5 (不同深度 + 正则 + 种子) ----
@@ -91,7 +91,7 @@ for name, params in LGB_MODELS:
     for fold, (tr, val) in enumerate(folds):
         m = lgb.LGBMClassifier(
             objective='multiclass', num_class=3, n_estimators=2000,
-            learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
+            learning_rate=0.05, subsample=0.8,
             reg_alpha=0.1, reg_lambda=0.1, random_state=fold*42,
             n_jobs=-1, verbose=-1, **params)
         m.fit(X[tr], y[tr], eval_set=[(X[val], y[val])],
