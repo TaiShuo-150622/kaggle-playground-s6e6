@@ -204,5 +204,3 @@ summary['ensemble_tuned'] = float(-neg_ba(res.x, best_combo, y))
 with open('all_models_summary.json', 'w') as f:
     json.dump(summary, f, indent=2)
 progress("ALL DONE!")
-EOF
-echo "script ok"
