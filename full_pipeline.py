@@ -131,7 +131,7 @@ for name,kw in LGB_MODELS+XGB_MODELS:
         sc.append(balanced_accuracy_score(y[val],np.argmax(oof[val],axis=1)))
     ba=balanced_accuracy_score(y,np.argmax(oof,axis=1))
     pr(f"  BA={ba:.5f} folds={[f'{s:.5f}' for s in sc]}")
-    all_preds[name]={'oof':oof,'test':tp,'ba':ba}
+    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof)
 
 # CatBoost (skip for speed, focus on trees + MLP)
 # RealMLP
@@ -158,7 +158,7 @@ for name,kw in CB_MODELS:
         sc.append(balanced_accuracy_score(y[val],np.argmax(oof[val],axis=1)))
     ba=balanced_accuracy_score(y,np.argmax(oof,axis=1))
     pr(f"  BA={ba:.5f}")
-    all_preds[name]={'oof':oof,'test':tp,'ba':ba}
+    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof)
 
 for name,hidden,ep in MLP_MODELS:
     pr(f"\n{name}")
@@ -170,7 +170,7 @@ for name,hidden,ep in MLP_MODELS:
         sc.append(balanced_accuracy_score(y[val],np.argmax(oof[val],axis=1)))
     ba=balanced_accuracy_score(y,np.argmax(oof,axis=1))
     pr(f"  BA={ba:.5f}")
-    all_preds[name]={'oof':oof,'test':tp,'ba':ba}
+    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof)
 
 # ============================================================
 # 4. Ensemble
@@ -191,12 +191,21 @@ for name,oof in [('trees_only',oof_trees),('trees+mlp',(oof_trees+oof_mlp)/2)]:
 # Best submission
 test_trees=np.mean([v['test'] for k,v in all_preds.items() if 'LGB' in k or 'XGB' in k or 'CB' in k],axis=0)
 test_mlp=np.mean([v['test'] for k,v in all_preds.items() if 'MLP' in k],axis=0)
-test_best=(test_trees+test_mlp)/2  # or test_trees
 
+# trees_only
 res=minimize(nba,[1,1,1],args=(oof_trees,y),method='Nelder-Mead',bounds=[(0.2,3),(0.2,3),(0.2,3)],options=dict(xatol=0.001,maxiter=500))
-pred_final=le.inverse_transform(tp(test_trees,res.x))
-sub=pd.DataFrame({'id':test['id'],'class':pred_final})
+pred_trees=le.inverse_transform(tp(test_trees,res.x))
+pd.DataFrame({'id':test['id'],'class':pred_trees}).to_csv('sub_trees.csv',index=False)
+pr(f"sub_trees: {pd.Series(pred_trees).value_counts().to_dict()}")
+
+# trees+mlp
+test_both=(test_trees+test_mlp)/2; oof_both=(oof_trees+oof_mlp)/2
+r2=minimize(nba,[1,1,1],args=(oof_both,y),method='Nelder-Mead',bounds=[(0.2,3),(0.2,3),(0.2,3)],options=dict(xatol=0.001,maxiter=500))
+pred_both=le.inverse_transform(tp(test_both,r2.x))
+pd.DataFrame({'id':test['id'],'class':pred_both}).to_csv('sub_both.csv',index=False)
+pr(f"sub_both (trees+mlp): tuned={-r2.fun:.5f} {pd.Series(pred_both).value_counts().to_dict()}")
+
+# also save final (trees_only for compat)
+pred_final=pred_trees; sub=pd.DataFrame({'id':test['id'],'class':pred_final})
 sub.to_csv('submission_final.csv',index=False)
-pr(f"\nSubmission: {len(sub)} rows")
-pr(f"Dist: {sub['class'].value_counts().to_dict()}")
 pr("ALL DONE!")
