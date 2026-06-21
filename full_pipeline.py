@@ -131,7 +131,7 @@ for name,kw in LGB_MODELS+XGB_MODELS:
         sc.append(balanced_accuracy_score(y[val],np.argmax(oof[val],axis=1)))
     ba=balanced_accuracy_score(y,np.argmax(oof,axis=1))
     pr(f"  BA={ba:.5f} folds={[f'{s:.5f}' for s in sc]}")
-    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof)
+    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof); np.save(f'test_{name}.npy',tp)
 
 # CatBoost (skip for speed, focus on trees + MLP)
 # RealMLP
@@ -158,7 +158,7 @@ for name,kw in CB_MODELS:
         sc.append(balanced_accuracy_score(y[val],np.argmax(oof[val],axis=1)))
     ba=balanced_accuracy_score(y,np.argmax(oof,axis=1))
     pr(f"  BA={ba:.5f}")
-    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof)
+    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof); np.save(f'test_{name}.npy',tp)
 
 for name,hidden,ep in MLP_MODELS:
     pr(f"\n{name}")
@@ -170,7 +170,7 @@ for name,hidden,ep in MLP_MODELS:
         sc.append(balanced_accuracy_score(y[val],np.argmax(oof[val],axis=1)))
     ba=balanced_accuracy_score(y,np.argmax(oof,axis=1))
     pr(f"  BA={ba:.5f}")
-    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof)
+    all_preds[name]={'oof':oof,'test':tp,'ba':ba}; np.save(f'oof_{name}.npy',oof); np.save(f'test_{name}.npy',tp)
 
 # ============================================================
 # 4. Ensemble
