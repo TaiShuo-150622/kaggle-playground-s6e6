@@ -69,7 +69,7 @@ XGB_BINARY_PARAMS = dict(
     reg_alpha=0.1,
     reg_lambda=0.5,
     gamma=0.05,
-    tree_method='gpu_hist',
+    tree_method='hist', device='cuda',
     verbosity=0,
 )
 

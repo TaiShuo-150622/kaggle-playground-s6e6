@@ -35,18 +35,25 @@ train, test, feat_list = engineer_all(train_raw, test_raw, train_raw['class'],
                                        include_advanced=True)
 pr(f"Features: {len(feat_list)}")
 
-# Prepare data
-X_all = train[feat_list].values.astype(np.float32)
-X_test = test[feat_list].values.astype(np.float32)
+# Prepare data — separate numeric and categorical
+cat_patterns = ['_cat', '_bin_', 'COMBO_', 'PAIR_', 'TRIO_', 'mod10', 'mod100',
+                'frac20', 'decimal1000', 'round']
+cat_cols_cb = [c for c in feat_list if any(p in c for p in cat_patterns)]
+num_cols = [c for c in feat_list if c not in cat_cols_cb]
 
-# For CatBoost: identify categorical columns
-cat_cols_cb = [c for c in feat_list
-               if c.endswith('_cat') or c.endswith('_bin_') or c.endswith('_cat_')
-               or 'COMBO_' in c or 'PAIR_' in c or 'TRIO_' in c
-               or 'mod10' in c or 'mod100' in c or 'frac20' in c or 'decimal1000' in c
-               or 'round' in c or c.endswith('_cat')]
-cat_idx = [feat_list.index(c) for c in cat_cols_cb if c in feat_list]
-pr(f"CatBoost categorical features: {len(cat_idx)}")
+# For LGB/XGBoost: all float32
+X_num = train[num_cols].values.astype(np.float32)
+X_cat = train[cat_cols_cb].fillna(-1).astype('int32').values
+X_all = np.concatenate([X_num, X_cat], axis=1)
+X_test_num = test[num_cols].values.astype(np.float32)
+X_test_cat = test[cat_cols_cb].fillna(-1).astype('int32').values
+X_test = np.concatenate([X_test_num, X_test_cat], axis=1)
+
+# For CatBoost: keep categoricals as int32
+n_num = len(num_cols)
+cat_idx = list(range(n_num, n_num + len(cat_cols_cb)))
+pr(f"Features: {len(num_cols)} num + {len(cat_cols_cb)} cat = {len(feat_list)} total")
+pr(f"CatBoost cat indices: {len(cat_idx)} (cols {n_num} to {len(feat_list)-1})")
 
 pr(f"Train: {X_all.shape}, Test: {X_test.shape}")
 
@@ -144,7 +151,7 @@ XGB_PARAMS = dict(
     max_depth=10, min_child_weight=20,
     subsample=0.8, colsample_bytree=0.8,
     reg_alpha=0.1, reg_lambda=0.5, gamma=0.05,
-    tree_method='gpu_hist', n_jobs=-1, verbosity=0,
+    tree_method='hist', device='cuda', n_jobs=-1, verbosity=0,
 )
 
 pr("\n=== XGBoost (GPU, 252 features) ===")

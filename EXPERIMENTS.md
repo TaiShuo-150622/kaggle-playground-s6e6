@@ -20,7 +20,14 @@
 
 | # | 日期 | 方向 | 假设 | 模型 | OOF before | OOF after | Δ | 决策 |
 |---|------|------|------|------|-----------|----------|---|------|
-| 0 | 6/23 | 代码重构 | 共享FE模块+RobustScaler+warmup | FT-v2 | 0.95981 | — | — | 待跑 |
+| 1 | 6/23 | 特征工程 V3 | 252 特征(移植cat-v3) → 所有树模型大幅提升 | CB/LGB/XGB | — | — | — | 运行中 |
+| 2 | 6/23 | One-vs-Rest | 3个二分类XGB > 1个三分类XGB | XGB-OVR | — | — | — | 运行中 |
+
+## 关键发现
+
+- cat-v3 notebook: 252 特征(含 Flux/Color ratios/Redshift/Sky/Hash combos) + 原始SDSS数据
+- 我们的 43 特征 vs 社区 252 特征 = 树模型差距的主因
+- 社区 CatBoost 参数: class_weights=[1,3.25,5], bagging_temperature=0.2, max_ctr_complexity=3
 
 ## 方向状态
 
