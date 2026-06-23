@@ -35,25 +35,28 @@ train, test, feat_list = engineer_all(train_raw, test_raw, train_raw['class'],
                                        include_advanced=True)
 pr(f"Features: {len(feat_list)}")
 
-# Prepare data — separate numeric and categorical
+# Identify categorical columns for CatBoost
 cat_patterns = ['_cat', '_bin_', 'COMBO_', 'PAIR_', 'TRIO_', 'mod10', 'mod100',
                 'frac20', 'decimal1000', 'round']
 cat_cols_cb = [c for c in feat_list if any(p in c for p in cat_patterns)]
 num_cols = [c for c in feat_list if c not in cat_cols_cb]
 
-# For LGB/XGBoost: all float32
-X_num = train[num_cols].values.astype(np.float32)
-X_cat = train[cat_cols_cb].fillna(-1).astype('int32').values
-X_all = np.concatenate([X_num, X_cat], axis=1)
-X_test_num = test[num_cols].values.astype(np.float32)
-X_test_cat = test[cat_cols_cb].fillna(-1).astype('int32').values
-X_test = np.concatenate([X_test_num, X_test_cat], axis=1)
+# For LGB/XGBoost: all float32 numpy
+X_all = train[feat_list].astype('float32').values
+X_test = test[feat_list].astype('float32').values
 
-# For CatBoost: keep categoricals as int32
-n_num = len(num_cols)
-cat_idx = list(range(n_num, n_num + len(cat_cols_cb)))
+# For CatBoost: keep DataFrame with proper dtypes (int for categoricals)
+for c in cat_cols_cb:
+    train[c] = train[c].fillna(-1).astype('int32')
+    test[c] = test[c].fillna(-1).astype('int32')
+for c in num_cols:
+    train[c] = train[c].astype('float32')
+    test[c] = test[c].astype('float32')
+X_cb = train[feat_list]  # DataFrame for CatBoost
+X_cb_test = test[feat_list]
+cat_idx = [feat_list.index(c) for c in cat_cols_cb]
+
 pr(f"Features: {len(num_cols)} num + {len(cat_cols_cb)} cat = {len(feat_list)} total")
-pr(f"CatBoost cat indices: {len(cat_idx)} (cols {n_num} to {len(feat_list)-1})")
 
 pr(f"Train: {X_all.shape}, Test: {X_test.shape}")
 
@@ -97,11 +100,11 @@ cb_scores = []
 for fold, (tr, val) in enumerate(folds):
     seed = 42 + fold
     model = CatBoostClassifier(random_seed=seed, **CB_CONFIG)
-    model.fit(X_all[tr], y_all[tr],
-              eval_set=[(X_all[val], y_all[val])],
+    model.fit(X_cb.iloc[tr], y_all[tr],
+              eval_set=[(X_cb.iloc[val], y_all[val])],
               cat_features=cat_idx, verbose=0)
-    oof_cb[val] = model.predict_proba(X_all[val])
-    test_cb += model.predict_proba(X_test) / 5
+    oof_cb[val] = model.predict_proba(X_cb.iloc[val])
+    test_cb += model.predict_proba(X_cb_test) / 5
     score = balanced_accuracy_score(y_all[val], np.argmax(oof_cb[val], axis=1))
     cb_scores.append(score)
     pr(f"  Fold {fold+1}: BA={score:.5f}")
