@@ -50,9 +50,11 @@ pr("Loading TabPFN-3 classifier...")
 from tabpfn import TabPFNClassifier
 
 # TabPFN-3 classifier
+import tabpfn_client
+tabpfn_client.set_access_token('tabpfn_sk_yWzGvHOWuqI815s3XpA-ZKfplDGC5mB8UJMaRWFnh8g')
+
 clf = TabPFNClassifier(
-    device='cuda',
-    n_estimators=4,  # ensemble size, more = better but slower
+    n_estimators=4,
     random_state=42,
 )
 pr(f"TabPFN loaded on CUDA")
