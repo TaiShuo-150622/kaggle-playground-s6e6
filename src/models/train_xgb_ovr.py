@@ -103,9 +103,9 @@ for class_idx, class_name in enumerate(CLASSES):
     mean_score = np.mean(fold_scores)
     pr(f"  {class_name} mean fold BA: {mean_score:.5f}")
 
-# Normalize OOF probabilities to sum to 1
-oof = oof / oof.sum(axis=1, keepdims=True)
-test_preds = test_preds / test_preds.sum(axis=1, keepdims=True)
+# Use raw binary probabilities directly (one-vs-rest: argmax of binary probs is correct)
+# No normalization needed — each classifier independently estimates P(sample ∈ class_i)
+# Normalizing would distort the relative confidence between classifiers
 
 oof_ba = balanced_accuracy_score(y_all, np.argmax(oof, axis=1))
 per_class = [balanced_accuracy_score(y_all == i, (np.argmax(oof, axis=1) == i).astype(int)) for i in range(3)]
