@@ -1,6 +1,6 @@
 # Kaggle Playground S6E6 — Predicting Stellar Class
 
-> **LB 0.96844** | 17 模型集成 (树 + MLP + FT-Transformer)  
+> **LB 0.96911** | 25 天 | 30+ 模型 | 树 + MLP + FT-Transformer  
 > 完整复盘: [`JOURNEY.md`](JOURNEY.md)
 
 ## 项目结构
@@ -61,7 +61,10 @@
 | + 阈值调优 | scipy.optimize 3阈值 | 0.96670 | 0.9656 |
 | + Deotte特征 | 21个新特征 | 0.96760 | 0.9642 |
 | + MLP集成 | pytabkit RealMLP | 0.96815 | 0.9642 |
-| + FT-Transformer | attention系 | **0.96844** | 0.9650 |
+| + FT-Transformer | attention系 | 0.96844 | 0.9650 |
+| + Deotte RealMLP | notebook完整移植 | 0.96877 | 0.9674 |
+| + LGB多seed | 3 seed平均 | 0.96902 | 0.9679 |
+| + LGB特征选择 | 去5个噪声特征 | **0.96911** | 0.9681 |
 
 ## 运行
 
