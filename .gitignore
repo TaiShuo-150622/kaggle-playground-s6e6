@@ -9,3 +9,10 @@ __pycache__/
 .cache/
 *.pyc
 submission_*.csv
+*.npy
+*.csv
+*.zip
+*.json
+sub_*.csv
+submission_*.csv
+sample_submission.csv
