@@ -10,7 +10,7 @@
 ├── JOURNEY.md                         # 完整复盘：每一步的思考和提升
 ├── NOTES.md                           # 比赛笔记 (特征/TDA/模型对比)
 │
-├── code/
+├── src/
 │   ├── features/                      # 特征工程
 │   │   ├── full_pipeline.py           #   原始数据 → 全部特征 (颜色/比值/TE/分箱)
 │   │   ├── add_deotte_features.py     #   Deotte 特征单独测试
@@ -70,11 +70,11 @@
 
 ```bash
 # 特征工程 + 18模型训练
-python3 code/features/full_pipeline.py
+python3 src/features/full_pipeline.py
 
 # FT-Transformer 训练
-python3 code/models/train_ft_transformer.py
+python3 src/models/train_ft_transformer.py
 
 # 手写 RealMLP
-python3 code/models/train_handcrafted_realmlp.py
+python3 src/models/train_handcrafted_realmlp.py
 ```

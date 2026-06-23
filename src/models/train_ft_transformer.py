@@ -22,7 +22,7 @@ import torch, torch.nn as nn, torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime
 
-from code.features.shared import engineer_all
+from src.features.shared import engineer_all
 
 
 def pr(msg): print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)

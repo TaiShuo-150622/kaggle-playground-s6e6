@@ -5,7 +5,7 @@ Single source of truth. Import from all training/ensemble scripts.
 Eliminates ~200 lines of duplicated code across 4+ files.
 
 Usage:
-    from code.features.shared import add_basic_features, add_deotte_features, add_target_encoding
+    from src.features.shared import add_color_indices, add_deotte_features, add_target_encoding
 
 Design decisions:
     - Feature names use Deotte convention (_, _-a-b, _TE_ci)
