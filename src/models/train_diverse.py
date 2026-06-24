@@ -81,8 +81,6 @@ if args.model in ('cb', 'both'):
         ("CB_252_d8", dict(depth=8), feat_list_252, train_252, test_252, cat_idx),
         ("CB_252_d6", dict(depth=6), feat_list_252, train_252, test_252, cat_idx),
         ("CB_252_d10", dict(depth=10, l2_leaf_reg=12.0), feat_list_252, train_252, test_252, cat_idx),
-        ("CB_60_d8", dict(depth=8), feat_list_60, train_60, test_60, cat_idx_60),
-        ("CB_60_d6", dict(depth=6), feat_list_60, train_60, test_60, cat_idx_60),
     ]
 
     SEEDS = [42, 142, 242]
