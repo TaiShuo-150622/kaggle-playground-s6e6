@@ -105,7 +105,7 @@ class NumericalPreprocessor:
             elif t=="smooth_clip": X = X/np.sqrt(1+(X/3)**2)
         return X
 
-prep = NumericalPreprocessor(['median_center','robust_scale'])
+prep = NumericalPreprocessor(['median_center','robust_scale','smooth_clip'])
 prep.fit(X[num_cols_final].values.astype(np.float32))
 X_num_all = prep.transform(X[num_cols_final].values.astype(np.float32))
 X_test_num = prep.transform(X_test[num_cols_final].values.astype(np.float32))
@@ -195,7 +195,7 @@ for fold,(tr_idx,val_idx) in enumerate(StratifiedKFold(5,shuffle=True,random_sta
     X_tr = X_tr[num_cols_final+te_names].values.astype(np.float32)
     X_val = X_val[num_cols_final+te_names].values.astype(np.float32)
     X_tst = X_tst[num_cols_final+te_names].values.astype(np.float32)
-    prep2 = NumericalPreprocessor(['median_center','robust_scale']); prep2.fit(X_tr)
+    prep2 = NumericalPreprocessor(['median_center','robust_scale','smooth_clip']); prep2.fit(X_tr)
     X_tr = prep2.transform(X_tr); X_val = prep2.transform(X_val); X_tst = prep2.transform(X_tst)
 
     xtr=torch.tensor(X_tr).to(DEVICE); ytr=torch.tensor(y_tr).long().to(DEVICE)
