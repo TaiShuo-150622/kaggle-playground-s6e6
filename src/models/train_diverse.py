@@ -53,8 +53,10 @@ if args.model in ('cb', 'both'):
             test_252[c] = test_252[c].astype('float32')
     cat_idx = [feat_list_252.index(c) for c in cat_cols_cb]
 
-    # Drop string columns from 60-feature set (CatBoost can't handle raw strings)
-    feat_list_60 = [c for c in feat_list_60 if str(train_60[c].dtype) != 'object']
+    # Drop string/object columns (CatBoost can't handle raw strings)
+    feat_list_60 = [c for c in feat_list_60
+                    if str(train_60[c].dtype) not in ('object', 'category')
+                    and c not in ('spectral_type', 'galaxy_population')]
     # Prep 60-feature data for CatBoost
     cat_cols_60 = [c for c in feat_list_60 if any(p in c for p in cat_patterns)]
     for c in cat_cols_60:
