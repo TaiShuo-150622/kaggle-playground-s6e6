@@ -56,6 +56,7 @@ PARAMS = dict(
     max_bin=32000,
     objective='multiclass',
     num_class=3,
+    metric='multi_logloss',
 )
 
 SEED_LIST = [60, 0, 2809]  # 3 seeds from notebook
@@ -75,7 +76,6 @@ for seed_idx, seed in enumerate(SEED_LIST):
         model.fit(
             X_all[tr], y_all[tr],
             eval_set=[(X_all[val], y_all[val])],
-            eval_metric='auc',
             callbacks=[lgb.log_evaluation(500), lgb.early_stopping(250)]
         )
         oof[val] = model.predict_proba(X_all[val])
