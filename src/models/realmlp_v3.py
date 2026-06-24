@@ -22,9 +22,15 @@ from src.features.shared import engineer_all
 
 def pr(msg): print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--seed', type=int, default=42)
+parser.add_argument('--save_prefix', type=str, default='RealMLP_v3')
+args = parser.parse_args()
+
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-SEED = 42; N_CLASSES = 3
-pr(f"Device: {DEVICE}")
+SEED = args.seed; N_CLASSES = 3
+pr(f"Device: {DEVICE}  Seed: {SEED}  Save: {args.save_prefix}")
 
 
 # ========== 1. Data + 252 Features ==========
@@ -207,6 +213,6 @@ for fold, (tr, val) in enumerate(skf.split(X_num, y_all)):
 
 oof_ba = balanced_accuracy_score(y_all, np.argmax(oof, axis=1))
 pr(f"\nRealMLP v3 OOF: {oof_ba:.5f} (folds: {[f'{s:.5f}' for s in fold_scores]})")
-np.save('oof_RealMLP_v3.npy', oof)
-np.save('test_RealMLP_v3.npy', test_preds)
+np.save(f'oof_{args.save_prefix}.npy', oof)
+np.save(f'test_{args.save_prefix}.npy', test_preds)
 pr("DONE")
