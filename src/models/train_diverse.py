@@ -43,6 +43,9 @@ if args.model in ('cb', 'both'):
 
     # Prep 252-feature data for CatBoost
     cat_patterns = ['_cat', '_bin_', 'COMBO_', 'PAIR_', 'TRIO_', 'mod10', 'mod100', 'frac20', 'decimal1000', 'round']
+    # Drop ALL non-numeric columns before CatBoost training
+    feat_list_252 = [c for c in feat_list_252
+                     if str(train_252[c].dtype) not in ('object', 'category')]
     cat_cols_cb = [c for c in feat_list_252 if any(p in c for p in cat_patterns)]
     for c in cat_cols_cb:
         # Convert category dtype to int codes first, then to int32
