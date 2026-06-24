@@ -139,10 +139,10 @@ class RealMLP(nn.Module):
 
 
 # ========== 3. Training ==========
-CONFIG = dict(n_ens=8, hidden_dims=[512, 512, 512], dropout=0.044,
+CONFIG = dict(n_ens=4, hidden_dims=[512, 512, 512], dropout=0.044,
               pbld_hidden_dim=16, pbld_out_dim=5, pbld_freq_scale=2.33,
               lr=0.01, weight_decay=0.0125, epochs=6,
-              train_bs=256, eval_bs=10240, grad_clip=1.0)
+              train_bs=128, eval_bs=10240, grad_clip=1.0)
 
 prep = NumericalPreprocessor()
 prep.fit(X_num)
