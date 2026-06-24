@@ -125,7 +125,7 @@ if args.model in ('realmlp', 'both'):
             pr(f"  ERROR: {result.stderr[-500:]}")
         else:
             for prefix in ["oof", "test"]:
-                old = f"{prefix}_RealMLP_handcrafted.npy"
+                old = f"{prefix}_Deotte_RealMLP.npy"
                 new = f"{prefix}_RealMLP_s{s_idx+1}.npy"
                 if os.path.exists(old):
                     os.rename(old, new)
