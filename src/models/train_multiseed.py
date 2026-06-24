@@ -114,28 +114,22 @@ if args.model in ('cb', 'both'):
 if args.model in ('realmlp', 'both'):
     import subprocess as sp
 
-    # Run deotte_realmlp.py directly with different seeds (avoids import side effects)
+    # Run deotte_realmlp.py via sed-pipe to avoid disk I/O issues
     for s_idx, base_seed in enumerate(SEEDS):
         pr(f"\n=== RealMLP seed {s_idx+1}/{len(SEEDS)} (SEED={base_seed}) ===")
-        # Copy and modify the script
-        script = "src/models/deotte_realmlp.py"
-        with open(script) as f:
-            content = f.read()
-        content = content.replace("SEED = 42", f"SEED = {base_seed}")
-        tmp_script = f"/root/kaggle_s6e6/realmlp_s{base_seed}.py"
-        with open(tmp_script, "w") as f:
-            f.write(content)
-
-        sp.run(["/root/miniconda3/bin/python3", tmp_script], cwd="/root/kaggle_s6e6", check=True)
-        os.remove(tmp_script)  # cleanup
-
-        # Rename output files
-        for prefix in ["oof", "test"]:
-            old = f"{prefix}_RealMLP_handcrafted.npy"
-            new = f"{prefix}_RealMLP_s{s_idx+1}.npy"
-            if os.path.exists(old):
-                os.rename(old, new)
-        pr(f"  Seed {s_idx+1} done")
+        result = sp.run(
+            f"sed 's/^SEED = 42/SEED = {base_seed}/' src/models/deotte_realmlp.py | /root/miniconda3/bin/python3 -",
+            shell=True, cwd="/root/kaggle_s6e6", capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            pr(f"  ERROR: {result.stderr[-500:]}")
+        else:
+            for prefix in ["oof", "test"]:
+                old = f"{prefix}_RealMLP_handcrafted.npy"
+                new = f"{prefix}_RealMLP_s{s_idx+1}.npy"
+                if os.path.exists(old):
+                    os.rename(old, new)
+            pr(f"  Seed {s_idx+1} done")
 
     # Ensemble
     rmlp_oofs = [np.load(f"oof_RealMLP_s{i+1}.npy") for i in range(len(SEEDS))]
