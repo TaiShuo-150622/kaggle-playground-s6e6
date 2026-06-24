@@ -45,8 +45,13 @@ if args.model in ('cb', 'both'):
     cat_patterns = ['_cat', '_bin_', 'COMBO_', 'PAIR_', 'TRIO_', 'mod10', 'mod100', 'frac20', 'decimal1000', 'round']
     cat_cols_cb = [c for c in feat_list_252 if any(p in c for p in cat_patterns)]
     for c in cat_cols_cb:
-        train_252[c] = train_252[c].astype(str).replace({'nan': '-1'}).astype('int32')
-        test_252[c] = test_252[c].astype(str).replace({'nan': '-1'}).astype('int32')
+        # Convert category dtype to int codes first, then to int32
+        if str(train_252[c].dtype) == 'category':
+            train_252[c] = train_252[c].cat.codes.fillna(-1).astype('int32')
+            test_252[c] = test_252[c].cat.codes.fillna(-1).astype('int32')
+        else:
+            train_252[c] = train_252[c].astype(str).replace({'nan': '-1'}).astype('int32')
+            test_252[c] = test_252[c].astype(str).replace({'nan': '-1'}).astype('int32')
     for c in feat_list_252:
         if c not in cat_cols_cb:
             train_252[c] = train_252[c].astype('float32')
