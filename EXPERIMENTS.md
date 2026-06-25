@@ -57,15 +57,33 @@
 | +FT v2 集成 | **0.96940** | -0.00009 |
 | 最终 (CB 5seed + RMLP + FT v2) | 待提交 | — |
 
-## 方向状态
+## 暂停/未完成
 
-| 方向 | 优先级 | 状态 |
-|------|--------|------|
-| A: fold-safe TE | ⭐⭐⭐ | 待做 |
-| B: RealMLP 细节补全 | ⭐⭐⭐ | 待做 |
-| C: FT-Transformer 改进 | ⭐⭐⭐ | ✅ 完成 |
-| D: RealMLP 多 seed | ⭐⭐⭐ | ⏳ 进行中 |
-| E: 最终集成 | ⭐⭐⭐ | 待做 |
+| 方向 | 状态 | 备注 |
+|------|------|------|
+| PBLD-Transformer | ⏸️ 代码已写，待跑 | 新架构：PBLD嵌入 + Transformer attention |
+| CB + SDSS 252feat | ⏸️ 需修复 spectral_type 生成 | 社区 notebook 方式 |
+| fold-safe TE | ⏸️ | 架构改动大 |
+| TabPFN-3 | ⏸️ | HF 授权阻塞 |
+| smooth_clip | ❌ 反降 0.0008 | 已确认无效 |
+
+## 最终成果
+
+| 指标 | 值 |
+|------|-----|
+| **最佳 LB** | **0.96949** |
+| 最佳集成 | CB v3 + RMLP Deotte (50/50) |
+| 最佳单模 CB | 0.96642（252特征 + 社区参数） |
+| 最佳单模 RMLP | 0.96742（Deotte 移植版） |
+| 最佳单模 FT | 0.96284（RobustScaler + warmup） |
+
+## 核心经验
+
+- 252 特征仅对 CatBoost 有效（+0.009），因 ordered encoding 原生处理类别特征
+- MLP/XGB/LGB 用 252 特征几乎无提升
+- 社区参数 (20000 trees, depth=3-4) 对 LGB 也无效 → 该数据集不适合 LGB
+- 模型深度/seed 变体几乎不增加多样性 → 质量 > 数量
+- PBLD 嵌入是代数上最优的数值特征处理方式（Bochner 定理）
 
 ## 已确认无效（不复现）
 
